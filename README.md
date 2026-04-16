@@ -1,8 +1,10 @@
-# Invoke-BenignExploitSim
+# Purple Team Toolkit (PTTK)
 
-A cross-platform benign exploit simulation project for SIEM, EDR, and native OS telemetry validation on Windows and Linux.
+A cross-platform benign simulation toolkit for purple team telemetry, detection, and validation exercises on Windows and Linux.
 
 This repository is built for authorized detection engineering, lab validation, tabletop exercises, and controlled purple-team style testing. Both platform implementations generate telemetry aligned with real adversary behaviors while intentionally avoiding destructive actions, persistence, privilege escalation, credential access, and routable command-and-control traffic.
+
+The current platform implementations retain the `Invoke-BenignExploitSim` script names, but the repository is now positioned as a broader toolkit rather than a single Windows-rooted utility.
 
 ## Platform Layout
 
