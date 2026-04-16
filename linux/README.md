@@ -172,7 +172,7 @@ The current Linux script covers these ATT&CK IDs:
 - `lib/common.sh` - logging, cleanup, status tracking, and validation helpers
 - `lib/detect.sh` - distro, privilege, container, runtime, and orchestrator detection
 - `lib/groups/` - group-specific technique functions
-- `linux/tests/test_linux_sim.sh` - Bash test harness for CLI and environment-aware behavior
+- `tests/test_linux_sim.sh` - Bash test harness for CLI and environment-aware behavior
 
 ## Notes
 

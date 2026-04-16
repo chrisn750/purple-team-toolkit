@@ -21,6 +21,10 @@ sim_services_timers() {
 }
 
 sim_services_cron() {
+  if ! sim_command_exists crontab; then
+    sim_mark_skip "crontab unavailable"
+    return 0
+  fi
   local data=""
   data="$(crontab -l 2>/dev/null || true)"
   if [ -n "$data" ]; then
@@ -33,7 +37,7 @@ sim_services_cron() {
 
 sim_services_root_extras() {
   sim_require_root_extra || return 0
-  if [ -d "/etc/cron.d" ]; then
+  if [ -d "$(sim_file_path "/etc/cron.d")" ]; then
     sim_note "$SIM_CURRENT_GROUP" "$SIM_CURRENT_TTP" "Root extra: /etc/cron.d present"
     return 0
   fi
