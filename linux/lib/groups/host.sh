@@ -20,6 +20,7 @@ sim_host_hostname_info() {
     return 0
   fi
   sim_mark_skip "hostname tooling unavailable"
+  return 0
 }
 
 sim_host_storage_info() {

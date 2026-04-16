@@ -37,9 +37,7 @@ sim_note() {
 }
 
 sim_setup_logging() {
-  SIM_LOG_PATH="${1:-}"
-  SIM_KEEP_LOG="${2:-0}"
-  if [ -n "$SIM_LOG_PATH" ]; then
+  if [ -n "${SIM_LOG_PATH:-}" ]; then
     : >"$SIM_LOG_PATH"
   fi
   trap sim_cleanup EXIT
@@ -142,6 +140,7 @@ sim_log_block() {
   local max_lines="${3:-3}"
   local count=0
   local line=""
+  [ -z "$data" ] && return 0
   while IFS= read -r line; do
     count=$((count + 1))
     [ "$count" -le "$max_lines" ] || break
@@ -158,6 +157,7 @@ sim_mark_skip() {
 }
 
 sim_mark_error() {
+  SIM_CURRENT_STATE="ERROR"
   sim_note "$SIM_CURRENT_GROUP" "$SIM_CURRENT_TTP" "ERROR: $1"
   return 1
 }

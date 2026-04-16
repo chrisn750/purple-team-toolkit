@@ -27,6 +27,7 @@ sim_identity_capabilities() {
     return 0
   fi
   sim_mark_skip "capability discovery unavailable"
+  return 0
 }
 
 sim_run_group_identity() {

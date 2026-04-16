@@ -36,6 +36,7 @@ sim_containers_cgroup_metadata() {
     return 0
   fi
   sim_mark_skip "container cgroup metadata unavailable"
+  return 0
 }
 
 sim_run_group_containers() {
