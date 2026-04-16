@@ -1,92 +1,22 @@
-# SIEM / EDR Validation Script
+# Invoke-BenignExploitSim
 
-A benign PowerShell validation script for exercising SIEM and EDR detections with realistic, non-destructive telemetry.
+A PowerShell-based benign exploit simulation tool for SIEM and Windows-event detection validation.
 
-This project is designed for detection engineering, lab validation, tabletop exercises, and controlled purple-team style testing. It simulates common attacker behaviors while intentionally avoiding malware, persistence, destructive actions, and routable command-and-control traffic.
+This project is built for authorized detection engineering, lab validation, tabletop exercises, and controlled purple-team style testing. It generates telemetry consistent with real adversary TTPs mapped to MITRE ATT&CK while avoiding destructive behavior, persistence, privilege escalation, credential access, and routable command-and-control traffic.
 
-## What It Does
+Its primary use case is log-centric validation on Windows systems, especially where defenders want to maximize signal in native telemetry sources such as Security `4688`, PowerShell `4103` and `4104`, WMI-Activity Operational, DNS Client Operational, AMSI, and BITS-related logs.
 
-`Invoke-BenignExploitSim_v4.3.3.ps1` generates security-relevant telemetry across multiple ATT&CK-aligned technique groups, including:
+## Current Version
 
-- Discovery
-- Execution
-- Collection
-- C2
-- LOLBin
-- Scripting
-- Enumeration
+- Script version: `4.3.3`
+- State: runtime-tested revision with non-domain skip fixes and safer backup software discovery invocation
+- Technique groups: `7`
+- Executable technique functions: `51`
+- Distinct MITRE ATT&CK IDs covered: `35`
 
-The script is built to create the kinds of logs defenders care about, such as:
+## What This Tool Does
 
-- PowerShell script block logging
-- AMSI inspection events
-- Process creation telemetry
-- Native command execution traces
-- DNS and HTTP activity for a non-routable simulated beacon
-
-## Design Goals
-
-- Safe by default for standard, non-admin execution
-- No malicious payloads or destructive actions
-- No intended persistent disk artifacts
-- Useful for validating logging, alerting, enrichment, and analyst workflows
-- Flexible enough for both broad coverage runs and targeted technique testing
-
-## Safety Notes
-
-This is a benign simulation tool, but it is intentionally noisy from a telemetry perspective.
-
-- It is expected to trigger PowerShell, process, DNS, and web telemetry.
-- It should be used only in environments where validation activity is authorized.
-- The default C2 endpoint uses the `.invalid` top-level domain to prevent routable egress.
-- Some noisier actions can be reduced with `-SafeMode`.
-- One technique path, Add-Type inline C# (`T1129`), remains opt-in behind `-IncludeUnverified`.
-
-## Quick Start
-
-Run the full validated simulation set:
-
-```powershell
-.\Invoke-BenignExploitSim_v4.3.3.ps1
-```
-
-Run a smaller subset of technique groups:
-
-```powershell
-.\Invoke-BenignExploitSim_v4.3.3.ps1 -Techniques Discovery,LOLBin,Scripting
-```
-
-Run in a more conservative mode:
-
-```powershell
-.\Invoke-BenignExploitSim_v4.3.3.ps1 -SafeMode -SkipChildProcess
-```
-
-Write output to a log file and keep it:
-
-```powershell
-.\Invoke-BenignExploitSim_v4.3.3.ps1 -LogPath .\validation.log -KeepLog
-```
-
-Enable the unverified Add-Type path:
-
-```powershell
-.\Invoke-BenignExploitSim_v4.3.3.ps1 -IncludeUnverified
-```
-
-## Parameters
-
-| Parameter | Type | Purpose |
-| --- | --- | --- |
-| `-LogPath` | `string` | Writes script output to a file. |
-| `-KeepLog` | `switch` | Keeps the log file after execution when used with `-LogPath`. |
-| `-SkipChildProcess` | `switch` | Skips the encoded-command test that launches a child `powershell.exe`. |
-| `-SafeMode` | `switch` | Suppresses the noisiest account, group, and share enumeration paths. |
-| `-Techniques` | `string[]` | Runs only the specified technique groups. |
-| `-C2Endpoint` | `string` | Overrides the simulated beacon URI. Host must end with `.invalid`. |
-| `-IncludeUnverified` | `switch` | Enables the opt-in Add-Type inline C# path. |
-
-Valid values for `-Techniques`:
+`Invoke-BenignExploitSim_v4.3.3.ps1` generates defender-relevant telemetry across seven ATT&CK-aligned technique groups:
 
 - `Discovery`
 - `Execution`
@@ -96,52 +26,147 @@ Valid values for `-Techniques`:
 - `Scripting`
 - `Enumeration`
 
+The script is designed to simulate suspicious-looking but non-malicious behavior that security teams can use to validate:
+
+- Logging pipelines
+- SIEM detection coverage
+- EDR visibility
+- Alert routing and enrichment
+- Analyst triage workflows
+- Detection tuning in regulated or change-controlled environments
+
+## Core Design Constraints
+
+The project is intentionally opinionated about safety and auditability:
+
+1. Zero persistent disk artifacts in default execution. No files are intentionally retained, no registry is modified, no scheduled tasks are created, and no services are installed. The only intentional persistent artifact path is `-KeepLog` used with `-LogPath`.
+2. No routable network activity for simulated beaconing or download-style techniques. Configurable C2 targets must use `.invalid`.
+3. No privilege escalation. The script is intended to run as a standard non-admin user.
+4. No credential access. LSASS is identified by process name only, `cmdkey /list` exposes target metadata only, and clipboard content is never logged.
+5. Every technique maps to a MITRE ATT&CK ID.
+6. Every technique remains controllable through grouping or switches such as `-Techniques`, `-SafeMode`, `-SkipChildProcess`, and `-IncludeUnverified`.
+
+## Quick Start
+
+Run all validated default techniques:
+
+```powershell
+.\Invoke-BenignExploitSim_v4.3.3.ps1
+```
+
+Run only selected technique groups:
+
+```powershell
+.\Invoke-BenignExploitSim_v4.3.3.ps1 -Techniques Discovery,LOLBin,Scripting
+```
+
+Run a more conservative pass:
+
+```powershell
+.\Invoke-BenignExploitSim_v4.3.3.ps1 -SafeMode -SkipChildProcess
+```
+
+Write output to a log file and retain it:
+
+```powershell
+.\Invoke-BenignExploitSim_v4.3.3.ps1 -LogPath .\validation.log -KeepLog
+```
+
+Enable the only remaining unverified technique:
+
+```powershell
+.\Invoke-BenignExploitSim_v4.3.3.ps1 -IncludeUnverified
+```
+
+## Parameters
+
+| Parameter | Type | Purpose |
+| --- | --- | --- |
+| `-Techniques` | `string[]` | Runs only selected technique groups. Valid values: `Discovery`, `Execution`, `Collection`, `C2`, `LOLBin`, `Scripting`, `Enumeration`. |
+| `-SafeMode` | `switch` | Suppresses the noisiest discovery activity, including `whoami /all`, `net localgroup administrators`, `net user`, `net share`, and domain-focused `net.exe` discovery commands. |
+| `-SkipChildProcess` | `switch` | Suppresses the encoded-command execution test that launches a child `powershell.exe`. |
+| `-IncludeUnverified` | `switch` | Enables the remaining unverified `Add-Type` inline C# compilation path, which may invoke `csc.exe` and create temporary compilation artifacts on some systems. |
+| `-LogPath` | `string` | Writes console output to the specified path during execution. |
+| `-KeepLog` | `switch` | Retains the log file specified by `-LogPath`. This is the only intentional persistent artifact path. |
+| `-C2Endpoint` | `string` | Overrides the simulated beacon URI. The host must end in `.invalid` to prevent routable egress. |
+
+## Expected Telemetry Surfaces
+
+The script is meant to create useful defensive signal across common Windows-native telemetry sources:
+
+- Security `4688` for native process creation events
+- PowerShell Operational `4103` for module and command invocation logging
+- PowerShell Operational `4104` for script block logging
+- WMI-Activity Operational for CIM and WMIC-backed discovery
+- DNS Client Operational for `.invalid` lookups and DNS-related techniques
+- AMSI for PowerShell content inspection
+- BITS Operational for create/resume/cancel job lifecycle telemetry
+
+## Technique Groups
+
+| Group | Functions | Primary telemetry |
+| --- | ---: | --- |
+| `Discovery` | 5 | `4688`, `4104`, WMI Operational |
+| `Execution` | 1 | `4688`, `4104` |
+| `Collection` | 1 | `4104` |
+| `C2` | 1 | `4104`, DNS Client, firewall |
+| `LOLBin` | 23 | `4688`, DNS Client, BITS |
+| `Scripting` | 10 | `4103`, `4104`, AMSI |
+| `Enumeration` | 10 | WMI Operational, `4103`, `4104`, DNS Client |
+
+## Verification Status
+
+Verified default techniques promoted from earlier unverified status:
+
+- `certutil -urlcache`
+- `bitsadmin /create + /resume + /cancel`
+- `rundll32 javascript:close()`
+
+Remaining unverified technique:
+
+- `Add-Type` inline C# compilation behind `-IncludeUnverified`
+
+That path remains opt-in because `csc.exe` may be absent on some systems and may create temporary compiler artifacts on others.
+
+## Known Environmental Behavior
+
+- `SecurityCenter2` antivirus queries commonly fail on Windows Server SKUs and should be treated as expected behavior.
+- Domain-specific `net.exe` commands and `nltest /dclist` are designed to skip on non-domain systems instead of treating `WORKGROUP` or the local host name as an AD domain.
+- `nltest /domain_trusts` and `net time /domain` may still fail on non-domain systems, but those failures are acceptable because the intended native process telemetry is still generated.
+- `-SkipChildProcess` is useful in hardened environments where ASR or policy controls may terminate child PowerShell.
+
 ## Operational Behavior
 
-The script is intentionally opinionated about safety:
+The implementation is structured to stay resilient and explainable during validation runs:
 
-- It validates the C2 endpoint and rejects hosts that do not end in `.invalid`.
-- It prefers read-only, in-memory, or ephemeral activity where possible.
-- It supports fallback log cleanup when `-LogPath` is used without `-KeepLog`.
-- It separates high-noise or less-certain behaviors behind explicit switches.
-
-`-SafeMode` reduces actions most likely to cause unnecessary escalation in production-like environments, while still preserving useful discovery and telemetry coverage.
-
-## Example Use Cases
-
-- Validate SIEM correlation rules for PowerShell and LOLBin activity
-- Test EDR visibility into encoded command execution and script behaviors
-- Confirm alert routing, enrichment, and case creation for suspicious-but-benign activity
-- Exercise analyst workflows during tabletop or detection tuning sessions
-- Compare telemetry coverage across server builds or security tooling baselines
+- Functions are grouped in an ordered technique map and executed with per-function `try/catch`, so one failure does not terminate the full run.
+- Native commands are funneled through `Invoke-Native` so normal native stderr behavior does not become a terminating PowerShell error under strict settings.
+- Domain-only techniques use domain-awareness checks and skip cleanly on standalone hosts.
+- `-C2Endpoint` is validated as an absolute URI whose host ends in `.invalid`.
+- Log cleanup is automatic unless `-KeepLog` is explicitly requested.
 
 ## ATT&CK Coverage
 
-The script header documents coverage across a wide set of ATT&CK techniques, including examples such as:
+The current script covers these ATT&CK IDs:
 
-- `T1033` System Owner/User Discovery
-- `T1059.001` PowerShell
-- `T1071.001` Web Protocols
-- `T1087.001` Local Account Discovery
-- `T1105` Ingress Tool Transfer simulation patterns
-- `T1197` BITS Jobs
-- `T1218` Signed Binary Proxy Execution variants
-- `T1490` Inhibit System Recovery related enumeration patterns
+`T1007, T1012, T1016, T1018, T1033, T1047, T1049, T1053, T1057, T1059.001, T1069.001, T1069.002, T1071.001, T1082, T1083, T1087.001, T1087.002, T1105, T1115, T1124, T1129, T1135, T1140, T1197, T1201, T1218.005, T1218.011, T1482, T1490, T1518, T1518.001, T1518.002, T1555, T1560, T1615`
 
-Use the script output and your environment telemetry together to confirm which controls, detections, and playbooks activate in your environment.
+## Recommended Validation Workflow
+
+1. Run as a standard non-admin user for representative validation.
+2. Start with default settings or use `-SafeMode` for a softer first pass.
+3. Use `-SkipChildProcess` when child PowerShell is likely to be blocked or aggressively flagged.
+4. On standalone hosts, confirm domain-only techniques are reported as `SKIPPED` rather than treated as hard failures.
+5. After execution, confirm no residual BITS jobs remain and no log file persists unless `-KeepLog` was intentionally used.
+6. Validate coverage across `4688`, `4103`, `4104`, WMI, DNS, AMSI, and BITS telemetry.
+7. Re-run focused technique groups to confirm fixes, enrichment changes, or new detections.
 
 ## Repository Contents
 
-- `Invoke-BenignExploitSim_v4.3.3.ps1` - the validation script
-
-## Recommended Workflow
-
-1. Run the script in a lab or otherwise authorized environment.
-2. Start with default settings or `-SafeMode` if you want a softer first pass.
-3. Review SIEM, EDR, PowerShell, DNS, and proxy telemetry generated during execution.
-4. Tune detections or enrichments based on gaps, false negatives, or noisy outcomes.
-5. Re-run focused technique groups to validate improvements.
+- `Invoke-BenignExploitSim_v4.3.3.ps1` - main simulation script
+- `README.md` - usage, safety, and validation guidance
+- `.gitignore` - local/editor artifact exclusions
 
 ## Disclaimer
 
-This repository is intended for defensive validation and authorized testing only. Operators are responsible for ensuring use complies with internal policy, change control, and monitoring expectations.
+This repository is intended for defensive validation and authorized testing only. Operators are responsible for ensuring use complies with internal policy, monitoring expectations, and change-control requirements.
