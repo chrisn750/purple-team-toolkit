@@ -1,10 +1,19 @@
 # Invoke-BenignExploitSim
 
-A PowerShell-based benign exploit simulation tool for SIEM and Windows-event detection validation.
+A set of benign exploit simulation tools for SIEM, EDR, and native OS telemetry validation across Windows and Linux environments.
 
 This project is built for authorized detection engineering, lab validation, tabletop exercises, and controlled purple-team style testing. It generates telemetry consistent with real adversary TTPs mapped to MITRE ATT&CK while avoiding destructive behavior, persistence, privilege escalation, credential access, and routable command-and-control traffic.
 
-Its primary use case is log-centric validation on Windows systems, especially where defenders want to maximize signal in native telemetry sources such as Security `4688`, PowerShell `4103` and `4104`, WMI-Activity Operational, DNS Client Operational, AMSI, and BITS-related logs.
+Its primary use case is log-centric validation on Windows and Linux systems, especially where defenders want to maximize signal in native telemetry sources and controlled command execution without introducing destructive or persistent behavior.
+
+## Platform Variants
+
+- Windows: [`Invoke-BenignExploitSim_v4.3.3.ps1`](./Invoke-BenignExploitSim_v4.3.3.ps1)
+- Linux: [`Invoke-BenignExploitSim_Linux_v1.sh`](./Invoke-BenignExploitSim_Linux_v1.sh)
+
+The Windows variant remains PowerShell-first and focused on Windows-native telemetry such as Security `4688`, PowerShell `4103` and `4104`, WMI-Activity Operational, DNS Client Operational, AMSI, and BITS.
+
+The Linux variant is Bash-first, optimized for Ubuntu/RHEL-family servers and VMs, auto-detects container context and runtime markers, and stays non-root by default with optional root-only enrichments behind an explicit flag. Its Linux-specific usage and safety model are documented in [`README_Linux.md`](./README_Linux.md).
 
 ## Current Version
 
@@ -163,8 +172,11 @@ The current script covers these ATT&CK IDs:
 
 ## Repository Contents
 
-- `Invoke-BenignExploitSim_v4.3.3.ps1` - main simulation script
-- `README.md` - usage, safety, and validation guidance
+- `Invoke-BenignExploitSim_v4.3.3.ps1` - Windows simulation script
+- `Invoke-BenignExploitSim_Linux_v1.sh` - Linux simulation entrypoint
+- `linux/lib/` - Linux Bash modules for common helpers, detection, and technique groups
+- `README.md` - repo overview and Windows-first documentation
+- `README_Linux.md` - Linux-specific usage, safety, and telemetry guidance
 - `.gitignore` - local/editor artifact exclusions
 
 ## Disclaimer
