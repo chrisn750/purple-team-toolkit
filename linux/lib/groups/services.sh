@@ -6,6 +6,7 @@ sim_services_units() {
     return 0
   fi
   sim_mark_skip "systemctl unavailable"
+  return 0
 }
 
 sim_services_timers() {
@@ -18,6 +19,7 @@ sim_services_timers() {
     return 0
   fi
   sim_mark_skip "systemctl unavailable"
+  return 0
 }
 
 sim_services_cron() {
@@ -42,6 +44,7 @@ sim_services_root_extras() {
     return 0
   fi
   sim_mark_skip "root cron directories unavailable"
+  return 0
 }
 
 sim_run_group_services() {

@@ -7,6 +7,7 @@ sim_network_interfaces() {
     return 0
   fi
   sim_mark_skip "ip command unavailable"
+  return 0
 }
 
 sim_network_sockets_and_neighbors() {
@@ -35,6 +36,7 @@ sim_network_dns_lookup() {
     return 0
   fi
   sim_mark_skip "DNS lookup tooling unavailable"
+  return 0
 }
 
 sim_network_http_beacon() {
@@ -53,6 +55,7 @@ sim_network_http_beacon() {
     return 0
   fi
   sim_mark_skip "HTTP client unavailable"
+  return 0
 }
 
 sim_run_group_network() {

@@ -6,6 +6,7 @@ sim_process_listing() {
     return 0
   fi
   sim_mark_skip "ps unavailable"
+  return 0
 }
 
 sim_process_security_tools() {
@@ -20,6 +21,7 @@ sim_process_security_tools() {
     return 0
   fi
   sim_mark_skip "pgrep unavailable"
+  return 0
 }
 
 sim_process_child_shell() {

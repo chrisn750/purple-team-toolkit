@@ -37,9 +37,7 @@ sim_note() {
 }
 
 sim_setup_logging() {
-  SIM_LOG_PATH="${1:-}"
-  SIM_KEEP_LOG="${2:-0}"
-  if [ -n "$SIM_LOG_PATH" ]; then
+  if [ -n "${SIM_LOG_PATH:-}" ]; then
     : >"$SIM_LOG_PATH"
   fi
   trap sim_cleanup EXIT

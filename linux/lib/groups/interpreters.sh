@@ -11,6 +11,7 @@ sim_interpreters_presence() {
     return 0
   fi
   sim_mark_skip "no supported interpreters detected"
+  return 0
 }
 
 sim_interpreters_shell_inline() {
@@ -24,6 +25,7 @@ sim_interpreters_python_inline() {
     return 0
   fi
   sim_mark_skip "python3 unavailable"
+  return 0
 }
 
 sim_interpreters_base64() {
@@ -40,6 +42,7 @@ sim_interpreters_base64() {
     return 0
   fi
   sim_mark_skip "base64 encoding failed"
+  return 0
 }
 
 sim_interpreters_unverified_perl() {
@@ -52,6 +55,7 @@ sim_interpreters_unverified_perl() {
     return 0
   fi
   sim_mark_skip "perl unavailable"
+  return 0
 }
 
 sim_run_group_interpreters() {
