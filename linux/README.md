@@ -12,6 +12,14 @@ It is designed for authorized testing on Ubuntu/RHEL-family servers, VMs, and co
 - Environment-aware behavior for bare hosts, VMs, and containerized contexts
 - Modular Bash layout with one operator-facing entrypoint
 
+## Current Version
+
+- Script version: `1.0.0`
+- State: runtime-tested Linux implementation with container-aware detection, root-extra gating, and optional unverified Perl execution
+- Technique groups: `7`
+- Executable technique functions: `25`
+- Distinct MITRE ATT&CK IDs covered: `21`
+
 ## Entry Point
 
 From the `linux/` directory, run:
@@ -33,6 +41,19 @@ From the `linux/` directory, run:
 --root-extras
 --help
 ```
+
+## Parameters
+
+| Parameter | Type | Purpose |
+| --- | --- | --- |
+| `--groups` | `csv` | Runs only selected Linux groups. Valid values: `identity`, `host`, `process`, `network`, `services`, `interpreters`, `containers`. |
+| `--safe-mode` | `flag` | Suppresses noisier child-process, network, and runtime-probing activity. |
+| `--skip-child-process` | `flag` | Suppresses the child shell execution simulation. |
+| `--include-unverified` | `flag` | Enables the optional unverified Perl inline execution path when `perl` is available. |
+| `--log-path` | `path` | Writes console output to the specified path during execution. |
+| `--keep-log` | `flag` | Retains the log file specified by `--log-path`. |
+| `--c2-endpoint` | `url` | Overrides the simulated beacon URI. The host must end in `.invalid`. |
+| `--root-extras` | `flag` | Enables extra root-only discovery paths when the current user is already root. |
 
 Example runs:
 
@@ -106,6 +127,45 @@ The Linux variant is meant to drive useful signal through:
 - procfs and filesystem access patterns tied to discovery activity
 - container/runtime marker inspection on hosts and in containers
 
+## Verification Status
+
+Verified default Linux paths include:
+
+- identity, host, process, network, services, and container discovery groups
+- child shell execution output formatting
+- `.invalid` DNS and HTTP simulation
+- root-extra service discovery when `--root-extras` is provided
+
+Optional unverified path:
+
+- Perl inline execution behind `--include-unverified`
+
+That path is dependency-gated. When `perl` is unavailable, the script records `SKIPPED` rather than treating the run as an error.
+
+## Known Environmental Behavior
+
+- `--root-extras` does not auto-enable just because the script is run as `root`; the flag must still be supplied explicitly.
+- Container runtime and Kubernetes marker detection can legitimately report `none` on hosts without exposed runtime sockets, binaries, or cluster markers.
+- Running inside a container causes host-only probes such as block device enumeration to be skipped intentionally.
+- Missing tools such as `perl`, `curl`, `wget`, `ip`, `ss`, or `systemctl` are treated as `SKIPPED`, not fatal failures.
+- `--safe-mode` intentionally suppresses the noisiest Linux paths and records them as skipped.
+
+## Operational Behavior
+
+The implementation is structured to stay resilient and explainable during validation runs:
+
+- Environment detection happens first so the script can branch safely for host versus container contexts.
+- Each technique runs independently and records `OK`, `SKIPPED`, or `ERROR` without terminating the entire run.
+- Root-only paths are gated behind `--root-extras` and current privilege checks.
+- Simulated network activity is restricted to `.invalid` endpoints only.
+- Linux modules are split by responsibility under `linux/lib/` so platform behavior is easier to reason about and extend.
+
+## ATT&CK Coverage
+
+The current Linux script covers these ATT&CK IDs:
+
+`T1007, T1016, T1018, T1033, T1049, T1053.003, T1053.006, T1057, T1059, T1059.004, T1059.006, T1059.007, T1068, T1071.001, T1082, T1120, T1140, T1518.001, T1580, T1610, T1611`
+
 ## Implementation Layout
 
 - `Invoke-BenignExploitSim.sh` - CLI entrypoint
@@ -119,3 +179,13 @@ The Linux variant is meant to drive useful signal through:
 - The Linux version is intentionally Linux-native and not an exact one-to-one parity port of the Windows script.
 - Missing commands are treated as `SKIPPED`, not fatal failures.
 - Each technique runs independently so one failing probe does not stop the entire simulation run.
+
+## Recommended Validation Workflow
+
+1. Run the script first as a normal user to validate the non-root-safe baseline.
+2. Add `--safe-mode` for a softer first pass in monitored environments.
+3. Add `--root-extras` only when you intentionally want the additional root-gated discovery paths.
+4. Use `--include-unverified` only when you want to exercise the optional Perl path and understand that it depends on `perl` being installed.
+5. Validate that DNS and HTTP simulations remain pointed at `.invalid` destinations.
+6. On containerized hosts or in containers, confirm host-only probes are skipped intentionally rather than treated as failures.
+7. Re-run focused groups to validate detection changes, runtime visibility, or telemetry enrichment updates.
