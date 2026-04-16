@@ -14,7 +14,7 @@ sim_interpreters_presence() {
 }
 
 sim_interpreters_shell_inline() {
-  sim_log_block "shell-inline" "$(bash -lc 'printf inline-shell-ok\n' 2>/dev/null || true)" 1
+  sim_log_block "shell-inline" "$(bash -lc "printf '%s\n' inline-shell-ok" 2>/dev/null || true)" 1
   return 0
 }
 

@@ -27,7 +27,7 @@ sim_process_child_shell() {
     sim_mark_skip "child shell execution simulation disabled"
     return 0
   fi
-  sim_log_block "child-shell" "$(bash -lc 'printf child-shell-ok\n' 2>/dev/null || true)" 1
+  sim_log_block "child-shell" "$(bash -lc "printf '%s\n' child-shell-ok" 2>/dev/null || true)" 1
   return 0
 }
 

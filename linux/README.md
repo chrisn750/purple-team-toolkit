@@ -1,6 +1,6 @@
 # Invoke-BenignExploitSim for Linux
 
-`Invoke-BenignExploitSim_Linux_v1.sh` is a Bash-first benign telemetry simulation tool for Linux-focused SIEM and EDR validation.
+`Invoke-BenignExploitSim.sh` is a Bash-first benign telemetry simulation tool for Linux-focused SIEM and EDR validation.
 
 It is designed for authorized testing on Ubuntu/RHEL-family servers, VMs, and container-aware environments. The script favors explainable, read-only, non-persistent behaviors that generate useful Linux-native telemetry while avoiding privilege escalation, daemon mutation, secret collection, or routable command-and-control traffic.
 
@@ -14,10 +14,10 @@ It is designed for authorized testing on Ubuntu/RHEL-family servers, VMs, and co
 
 ## Entry Point
 
-Run the Linux variant with:
+From the `linux/` directory, run:
 
 ```bash
-./Invoke-BenignExploitSim_Linux_v1.sh
+./Invoke-BenignExploitSim.sh
 ```
 
 ## CLI Options
@@ -37,10 +37,10 @@ Run the Linux variant with:
 Example runs:
 
 ```bash
-./Invoke-BenignExploitSim_Linux_v1.sh --groups identity,process,network
-./Invoke-BenignExploitSim_Linux_v1.sh --safe-mode --skip-child-process
-./Invoke-BenignExploitSim_Linux_v1.sh --groups containers --root-extras
-./Invoke-BenignExploitSim_Linux_v1.sh --log-path ./linux-validation.log --keep-log
+./Invoke-BenignExploitSim.sh --groups identity,process,network
+./Invoke-BenignExploitSim.sh --safe-mode --skip-child-process
+./Invoke-BenignExploitSim.sh --groups containers --root-extras
+./Invoke-BenignExploitSim.sh --log-path ./linux-validation.log --keep-log
 ```
 
 ## Linux Technique Groups
@@ -108,11 +108,11 @@ The Linux variant is meant to drive useful signal through:
 
 ## Implementation Layout
 
-- `Invoke-BenignExploitSim_Linux_v1.sh` - CLI entrypoint
-- `linux/lib/common.sh` - logging, cleanup, status tracking, and validation helpers
-- `linux/lib/detect.sh` - distro, privilege, container, runtime, and orchestrator detection
-- `linux/lib/groups/` - group-specific technique functions
-- `tests/test_linux_sim.sh` - Bash test harness for CLI and environment-aware behavior
+- `Invoke-BenignExploitSim.sh` - CLI entrypoint
+- `lib/common.sh` - logging, cleanup, status tracking, and validation helpers
+- `lib/detect.sh` - distro, privilege, container, runtime, and orchestrator detection
+- `lib/groups/` - group-specific technique functions
+- `linux/tests/test_linux_sim.sh` - Bash test harness for CLI and environment-aware behavior
 
 ## Notes
 

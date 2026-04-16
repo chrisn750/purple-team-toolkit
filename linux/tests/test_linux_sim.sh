@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SCRIPT_PATH="$ROOT_DIR/Invoke-BenignExploitSim_Linux_v1.sh"
+SCRIPT_PATH="$ROOT_DIR/Invoke-BenignExploitSim.sh"
 TEST_TMP="${TMPDIR:-/tmp}/linux-sim-tests-$$"
 PASS_COUNT=0
 FAIL_COUNT=0
@@ -311,6 +311,19 @@ test_safe_mode_skips_noisy_process_and_network_activity() {
     assert_contains "$output" "SKIPPED: HTTP beacon simulation suppressed by safe mode"
 }
 
+test_inline_shell_output_is_clean() {
+  local fake_root="$TEST_TMP/inline-root"
+  local stub_dir="$TEST_TMP/inline-bin"
+  local output
+  make_fake_root "$fake_root"
+  make_stub_env "$stub_dir"
+  output="$(run_script "$fake_root" "$stub_dir" --groups process,interpreters)"
+  assert_contains "$output" "child-shell: child-shell-ok" &&
+    assert_contains "$output" "shell-inline: inline-shell-ok" &&
+    [[ "$output" != *"child-shell: child-shell-okn"* ]] &&
+    [[ "$output" != *"shell-inline: inline-shell-okn"* ]]
+}
+
 run_test() {
   local name="$1"
   shift
@@ -328,6 +341,7 @@ run_test "log cleanup happens without keep-log" test_log_cleanup_happens_without
 run_test "container context skips host-only probe" test_container_context_skips_host_only_probe
 run_test "runtime markers are reported on host" test_runtime_markers_are_reported_on_host
 run_test "safe mode skips noisy process and network activity" test_safe_mode_skips_noisy_process_and_network_activity
+run_test "inline shell output is clean" test_inline_shell_output_is_clean
 
 echo "$PASS_COUNT passing"
 if [ "$FAIL_COUNT" -ne 0 ]; then
